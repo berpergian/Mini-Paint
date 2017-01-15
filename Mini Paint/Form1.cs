@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,129 +18,102 @@ namespace Mini_Paint
 
         int dx,dy;
         double x,y;
+        Point tstart, tend, tpusat,InputStart,InputEnd;
         Graphics g;
+        Color warna;
         bool mousedown = false;
 
         public Form1()
         {
             InitializeComponent();
             g = pictureBox1.CreateGraphics();
-            /*if (rbtnNGon.Checked == true)
-            {
-                txtN.Enabled = true;
-            }*/
+            DrawTPusat();
         }
 
-        /* Proses Cetak ke Steps, X Tambah, Y Tambah, dll...*/
-        private void SetTextSteps(string text)
-        {
-            if (InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetTextSteps);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.txtSteps.Text = text;
-            }
-        }
-
-        private void SetTextX(string text)
-        {
-            if (InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetTextX);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.txtXTambah.Text = text;
-            }
-        }
-
-        private void SetTextY(string text)
-        {
-            if (InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetTextY);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.txtYTambah.Text = text;
-            }
-        }
-
-        private void SetTextG(string text)
-        {
-            if (InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetTextG);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.txtGradien.Text = text;
-            }
-        }
-
-        private void SetTextC(string text)
-        {
-            if (InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetTextC);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.txtC.Text = text;
-            }
-        }
-
-        private void SetTextJari2(string text)
-        {
-            if (InvokeRequired)
-            {
-                SetTextCallback d = new SetTextCallback(SetTextJari2);
-                this.Invoke(d, new object[] { text });
-            }
-            else
-            {
-                this.txtJari2.Text = text;
-            }
-        }
-
-        /* ===============================*/
+        /* ==============================*/
 
         void PutPixel(int x, int y, Color clr)
         {
-
-            /* using (SolidBrush brush = new SolidBrush(clr))
-                g.FillRectangle(brush, x, y, 1, 1);*/
-
             using (Pen Pen = new Pen(clr))
-                g.DrawLine(Pen, Convert.ToInt32(txtXA.Text), Convert.ToInt32(txtYA.Text), x, y);
+                g.DrawLine(Pen, tstart.X, tstart.Y, x, y);
         }
 
+        void DrawNew()
+        {
+            g.Clear(Color.White);
+            if (rbtnDDA.Checked == true)
+            {
+                DDA();
+            }
+            else if (rbtnNaive.Checked == true)
+            {
+                Naive();
+            }
+            else if (rbtnBresenham.Checked == true)
+            {
+                Bresenham();
+            }
+            else if (rbtnLingkaran.Checked == true)
+            {
+                BuatLingkaran();
+            }
+            else if (rbtnElips.Checked == true)
+            {
+                BuatElips();
+            }
+            else if (rbtnBintang.Checked == true)
+            {
+                BuatBintang();
+            }
+            else if (rbtnNGon.Checked == true)
+            {
+                BuatNGon();
+            }
+        }
+
+        private void DrawTPusat()
+        {
+            InputStart.X = tpusat.X;
+            InputStart.Y = 0;
+            InputEnd.X = tpusat.X;
+            InputEnd.Y = tpusat.Y * 2;
+            Bresenham();
+
+            InputStart.X = 0;
+            InputStart.Y = tpusat.Y;
+            InputEnd.X = tpusat.X * 2;
+            InputEnd.Y = tpusat.Y;
+            Bresenham();
+        }
+
+        private void DoTransformation(Matrix M)
+        {
+            Point[] points = { new Point(tstart.X - tpusat.X,tpusat.Y - tstart.Y),
+                               new Point(tend.X - tpusat.X,tpusat.Y - tend.Y) };
+            M.TransformVectors(points);
+            tstart = new Point(points[0].X + tpusat.X, tpusat.Y - points[0].Y);
+            tend = new Point(points[1].X + tpusat.X, tpusat.Y - points[1].Y);
+            DrawNew();
+        }
+        /* ==============================*/
+        /*==================== Shape =====================*/
         private void DDA()
         {
-            dx = Convert.ToInt32(txtXB.Text) - Convert.ToInt32(txtXA.Text);
-            dy = Convert.ToInt32(txtYB.Text) - Convert.ToInt32(txtYA.Text);
-            x = Convert.ToDouble(txtXA.Text);
-            y = Convert.ToDouble(txtYA.Text);
+            dx = tend.X - tstart.X;
+            dy = tend.Y - tstart.Y;
+            x = Convert.ToDouble(tstart.X);
+            y = Convert.ToDouble(tstart.Y);
+            warna = Color.Red;
 
-            int steps= Math.Max(Math.Abs(dx), Math.Abs(dy));
+            int steps = Math.Max(Math.Abs(dx), Math.Abs(dy));
 
             double xIncrement = (double)dx / steps;
             double yIncrement = (double)dy / steps;
 
-            SetTextSteps(Convert.ToString(steps));
-            SetTextX(Convert.ToString(xIncrement));
-            SetTextY(Convert.ToString(yIncrement));
 
             while (steps > 0)
             {
-                PutPixel((int)Math.Floor(x+0.5F), (int)Math.Floor(y + 0.5F), Color.Red);
+                PutPixel((int)Math.Floor(x+0.5F), (int)Math.Floor(y + 0.5F), warna);
                 x += xIncrement;
                 y += yIncrement;
                 steps--;
@@ -148,27 +122,18 @@ namespace Mini_Paint
 
         private void Naive()
         {
-            int xAwal, yAwal, xAkhir, yAkhir;
+            dx = tend.X - tstart.X;
+            dy = tend.Y - tstart.Y;
+            x = Convert.ToDouble(tstart.X);
+            y = Convert.ToDouble(tstart.Y);
 
-            xAwal = Convert.ToInt32(txtXA.Text);
-            yAwal = Convert.ToInt32(txtYA.Text);
-            xAkhir = Convert.ToInt32(txtXB.Text);
-            yAkhir = Convert.ToInt32(txtYB.Text);
-
-            dx = xAkhir - xAwal;
-            dy = yAkhir - yAwal;
-            x = (double)xAwal;
-            y = (double)yAwal;
             double gradien = (double)dy / dx;
-            double c = yAwal - gradien * xAwal;
-
-            SetTextG(Convert.ToString(gradien));
-            SetTextC(Convert.ToString(c));
+            double c = tstart.Y - gradien * tstart.X;
 
             if (Math.Abs(dx) > Math.Abs(dy))
             {
-                int xMulai = Math.Min(xAwal, xAkhir);
-                int xSelesai = Math.Max(xAwal, xAkhir);
+                int xMulai = Math.Min(tstart.X, tend.X);
+                int xSelesai = Math.Max(tstart.X, tend.X);
 
                 for (x = xMulai; x <= xSelesai; x++)
                 {
@@ -178,14 +143,14 @@ namespace Mini_Paint
             }
             else
             {
-                int yStart = Math.Min(yAwal, yAkhir);
-                int yEnd = Math.Max(yAwal, yAkhir);
+                int yStart = Math.Min(tstart.Y, tend.Y);
+                int yEnd = Math.Max(tstart.Y, tend.Y);
 
                 for (y = yStart; y <= yEnd; y++)
                 {
                     if(dx == 0)
                     {
-                        x = xAwal;
+                        x = tstart.X;
                     }
                     else
                     {
@@ -199,29 +164,17 @@ namespace Mini_Paint
 
         private void Bresenham()
         {
-            dx = Math.Abs(Convert.ToInt32(txtXB.Text) - Convert.ToInt32(txtXA.Text));
-            dy = Math.Abs(Convert.ToInt32(txtYB.Text) - Convert.ToInt32(txtYA.Text));
+            dx = Math.Abs(tend.X - tstart.X);
+            dy = Math.Abs(tend.Y - tstart.Y);
 
-            /*if(Convert.ToInt32(txtXA.Text) > Convert.ToInt32(txtXB.Text))
-            {
-                x = Convert.ToDouble(txtXB.Text);
-                y = Convert.ToDouble(txtYB.Text);
-                xEnd = Convert.ToInt32(txtXA.Text);
-            }
-            else
-            {
-                x = Convert.ToDouble(txtXA.Text);
-                y = Convert.ToDouble(txtYA.Text);
-                xEnd = Convert.ToInt32(txtXB.Text);
-            }*/
-            int xIncrement = Convert.ToInt32(txtXA.Text) < Convert.ToInt32(txtXB.Text) ? 1 : -1;
-            int yIncrement = Convert.ToInt32(txtYA.Text) < Convert.ToInt32(txtYB.Text) ? 1 : -1;
+            int xIncrement = tstart.X < tend.X ? 1 : -1;
+            int yIncrement = tstart.Y < tend.Y ? 1 : -1;
 
             int P = (dx > dy ? dx : -dy) / 2;
-            x = Convert.ToInt32(txtXA.Text);
-            y = Convert.ToInt32(txtYA.Text);
+            x = tstart.X;
+            y = tstart.Y;
 
-            while (x != Convert.ToInt32(txtXB.Text) && y != Convert.ToInt32(txtYB.Text))
+            while (x != tend.X && y != tend.Y)
             {
                 PutPixel((int)x, (int)y, Color.Blue);
                 if(P > -dx)
@@ -239,13 +192,7 @@ namespace Mini_Paint
 
         private void BuatLingkaran()
         {
-            int xAwal = Convert.ToInt32(txtXA.Text);
-            int yAwal = Convert.ToInt32(txtYA.Text);
-            int xAkhir = Convert.ToInt32(txtXB.Text);
-            int yAkhir = Convert.ToInt32(txtYB.Text);
-
-            int jari2 = (int)Math.Sqrt(Math.Pow(xAkhir - xAwal, 2) + Math.Pow(yAkhir - yAwal, 2));
-            SetTextJari2(Convert.ToString(jari2));
+            int jari2 = (int)Math.Sqrt(Math.Pow(tend.X - tstart.X, 2) + Math.Pow(tend.Y - tstart.Y, 2));
 
             x = 0;
             y = jari2;
@@ -253,14 +200,14 @@ namespace Mini_Paint
 
             while(x <= y)
             {
-                GambarLingkaran((int)x + xAwal, (int)y + yAwal);
-                GambarLingkaran(xAwal + ((int)x * -1), (int)y + yAwal);
-                GambarLingkaran((int)x + xAwal, yAwal + ((int)y * -1));
-                GambarLingkaran(xAwal + ((int)x * -1), yAwal + ((int)y * -1));
-                GambarLingkaran((int)y + xAwal, (int)x + yAwal);
-                GambarLingkaran(xAwal + ((int)y * -1), (int)x + yAwal);
-                GambarLingkaran((int)y + xAwal, yAwal + ((int)x * -1));
-                GambarLingkaran(xAwal + ((int)y * -1), yAwal + ((int)x * -1));
+                GambarLingkaran((int)x + tstart.X, (int)y + tstart.Y);
+                GambarLingkaran(tstart.X + ((int)x * -1), (int)y + tstart.Y);
+                GambarLingkaran((int)x + tstart.X, tstart.Y + ((int)y * -1));
+                GambarLingkaran(tstart.X + ((int)x * -1), tstart.Y + ((int)y * -1));
+                GambarLingkaran((int)y + tstart.X, (int)x + tstart.Y);
+                GambarLingkaran(tstart.X + ((int)y * -1), (int)x + tstart.Y);
+                GambarLingkaran((int)y + tstart.X, tstart.Y + ((int)x * -1));
+                GambarLingkaran(tstart.X + ((int)y * -1), tstart.Y + ((int)x * -1));
 
                 if (Pk<0)
                 {
@@ -283,107 +230,8 @@ namespace Mini_Paint
 
         private void BuatElips()
         {
-            /*int xAwal = Convert.ToInt32(txtXA.Text);
-            int yAwal = Convert.ToInt32(txtYA.Text);
-            int xAkhir = Convert.ToInt32(txtXB.Text);
-            int yAkhir = Convert.ToInt32(txtYB.Text);
-
-            int ry = Math.Abs(yAkhir - yAwal);
-            int rx = Math.Abs(xAkhir - xAwal);
-
-            x = 0;
-            y = ry;
-
-            double P1 = Math.Pow(ry, 2) - Math.Pow(rx, 2) * ry + (0.25 * Math.Pow(rx, 2));
-            double P2 = Math.Pow(ry, 2) * Math.Pow((x + 0.5), 2) + Math.Pow(rx, 2) * Math.Pow((y - 1), 2) - Math.Pow(rx, 2) * Math.Pow(ry, 2);
-
-            //Bagian Pertama
-            while(2* Math.Pow(ry, 2)*x>2* Math.Pow(rx, 2)*y)
-            {
-                GambarElips(xAwal + (int)x, yAwal + (int)y);
-                GambarElips(xAwal - (int)x, yAwal + (int)y);
-                GambarElips(xAwal + (int)x, yAwal - (int)y);
-                GambarElips(xAwal - (int)x, yAwal - (int)y);
-                if (P1<0)
-                {
-                    x = x + 1;
-                    P1 = P1 + 2 * Math.Pow(ry, 2) * x + Math.Pow(ry, 2);
-                }
-                else
-                {
-                    x = x + 1;
-                    y = y - 1;
-                    P1 = P1 + 2 * (Math.Pow(ry, 2) * x + Math.Pow(ry, 2)) - 2 * (Math.Pow(rx, 2) * y - Math.Pow(rx, 2)) + Math.Pow(ry, 2);
-                }
-            }
-
-            //Bagian Kedua
-            while(y<=0)
-            {
-                GambarElips(xAwal + (int)x, yAwal + (int)y);
-                GambarElips(xAwal - (int)x, yAwal + (int)y);
-                GambarElips(xAwal + (int)x, yAwal - (int)y);
-                GambarElips(xAwal - (int)x, yAwal - (int)y);
-                if (P2>0)
-                {
-                    y = y - 1;
-                    P2 = P2 - 2 * (Math.Pow(rx, 2) * y) + Math.Pow(rx, 2);
-                }
-                else
-                {
-                    x = x + 1;
-                    y = y - 1;
-                    P2 = P2 + 2 * (Math.Pow(ry, 2) * x - 2 * (Math.Pow(rx, 2) * y));
-                }
-            }*/
-
-            /*int a2 = rx * rx;
-            int b2 = ry * ry;
-            int fa2 = 4 * a2, fb2 = 4 * b2;
-            int sigma = 2 * b2 + a2 * (1 - 2 * ry);
-
-            x = 0;
-            y = ry;
-
-            //first half 
-            for (x = 0, y = ry, sigma = 2 * b2 + a2 * (1 - 2 * ry); b2 * x <= a2 * y; x++)
-            //while(b2 * x <= a2 * y)
-            {
-                GambarElips(xAwal + (int)x, yAwal + (int)y);
-                GambarElips(xAwal - (int)x, yAwal + (int)y);
-                GambarElips(xAwal + (int)x, yAwal - (int)y);
-                GambarElips(xAwal - (int)x, yAwal - (int)y);
-                if (sigma >= 0)
-                {
-                    sigma += fa2 * (1 - (int)y);
-                    y = y - 1;
-                }
-                sigma += b2 * ((4 * (int)x) + 6);
-                //x = x + 1;
-            }
-
-            //second half
-            for (x = ry, y = 0, sigma = 2 * a2 + b2 * (1 - 2 * ry); a2 * y <= b2 * x; y++)
-            {
-                GambarElips(xAwal + (int)x, yAwal + (int)y);
-                GambarElips(xAwal - (int)x, yAwal + (int)y);
-                GambarElips(xAwal + (int)x, yAwal - (int)y);
-                GambarElips(xAwal - (int)x, yAwal - (int)y);
-                if (sigma >= 0)
-                {
-                    sigma += fb2 * (1 - (int)x);
-                    x--;
-                }
-                sigma += a2 * ((4 * (int)y) + 6);
-            }*/
-
-            double xAwal = Convert.ToDouble(txtXA.Text);
-            double yAwal = Convert.ToDouble(txtYA.Text);
-            double xAkhir = Convert.ToDouble(txtXB.Text);
-            double yAkhir = Convert.ToDouble(txtYB.Text);
-
-            double ry = Math.Abs(yAkhir - yAwal);
-            double rx = Math.Abs(xAkhir - xAwal);
+            double ry = Math.Abs(Convert.ToDouble(tend.Y - tstart.Y));
+            double rx = Math.Abs(Convert.ToDouble(tend.X - tstart.X));
 
             double rxSq = rx * rx;
             double rySq = ry * ry;
@@ -391,10 +239,10 @@ namespace Mini_Paint
             y = ry;
             double px = 0, py = 2 * rxSq * y, p;
 
-            GambarElips((int)xAwal + (int)x, (int)yAwal + (int)y);
-            GambarElips((int)xAwal - (int)x, (int)yAwal + (int)y);
-            GambarElips((int)xAwal + (int)x, (int)yAwal - (int)y);
-            GambarElips((int)xAwal - (int)x, (int)yAwal - (int)y);
+            GambarElips(tstart.X + (int)x, tstart.Y + (int)y);
+            GambarElips(tstart.X - (int)x, tstart.Y + (int)y);
+            GambarElips(tstart.X + (int)x, tstart.Y - (int)y);
+            GambarElips(tstart.X - (int)x, tstart.Y - (int)y);
 
             //Region 1
             p = rySq - (rxSq * ry) + (0.25 * rxSq);
@@ -410,10 +258,10 @@ namespace Mini_Paint
                     py = py - 2 * rxSq;
                     p = p + rySq + px - py;
                 }
-                GambarElips((int)xAwal + (int)x, (int)yAwal + (int)y);
-                GambarElips((int)xAwal - (int)x, (int)yAwal + (int)y);
-                GambarElips((int)xAwal + (int)x, (int)yAwal - (int)y);
-                GambarElips((int)xAwal - (int)x, (int)yAwal - (int)y);
+                GambarElips(tstart.X + (int)x, tstart.Y + (int)y);
+                GambarElips(tstart.X - (int)x, tstart.Y + (int)y);
+                GambarElips(tstart.X + (int)x, tstart.Y - (int)y);
+                GambarElips(tstart.X - (int)x, tstart.Y - (int)y);
             }
 
             //Region 2
@@ -430,10 +278,10 @@ namespace Mini_Paint
                     px = px + 2 * rySq;
                     p = p + rxSq - py + px;
                 }
-                GambarElips((int)xAwal + (int)x, (int)yAwal + (int)y);
-                GambarElips((int)xAwal - (int)x, (int)yAwal + (int)y);
-                GambarElips((int)xAwal + (int)x, (int)yAwal - (int)y);
-                GambarElips((int)xAwal - (int)x, (int)yAwal - (int)y);
+                GambarElips(tstart.X + (int)x, tstart.Y + (int)y);
+                GambarElips(tstart.X - (int)x, tstart.Y + (int)y);
+                GambarElips(tstart.X + (int)x, tstart.Y - (int)y);
+                GambarElips(tstart.X - (int)x, tstart.Y - (int)y);
             }
         }
 
@@ -445,78 +293,67 @@ namespace Mini_Paint
 
         private void BuatBintang()
         {
-            int xAwal = Convert.ToInt32(txtXA.Text);
-            int yAwal = Convert.ToInt32(txtYA.Text);
-            int xAkhir = Convert.ToInt32(txtXB.Text);
-            int yAkhir = Convert.ToInt32(txtYB.Text);
-
-            int jari2 = (int)Math.Sqrt(Math.Pow(xAkhir - xAwal, 2) + Math.Pow(yAkhir - yAwal, 2));
-            SetTextJari2(Convert.ToString(jari2));
+            int jari2 = (int)Math.Sqrt(Math.Pow(tend.X - tstart.X, 2) + Math.Pow(tend.Y - tstart.Y, 2));
 
             int i = 1, n = 5;
-            x = Convert.ToDouble(txtXA.Text);
-            y = Convert.ToDouble(txtYA.Text);
+            x = Convert.ToDouble(tstart.X);
+            y = Convert.ToDouble(tstart.Y);
             double alpha = (2 * Math.PI / n);
 
             Pen color = new Pen(Color.Brown);
-            Point pAwal = new Point();
-            Point pAkhir = new Point();
+            /*Point pAwal = new Point();
+            Point pAkhir = new Point();*/
             
             while (i<=n)
             {
-                xAwal = (int)x + (int)(jari2 * Math.Cos(alpha * i /*+ Math.PI / n*/));
-                yAwal = (int)y + (int)(jari2 * Math.Sin(alpha * i /*+ Math.PI / n*/));
+                tstart.X = (int)x + (int)(jari2 * Math.Cos(alpha * i /*+ Math.PI / n*/));
+                tstart.Y = (int)y + (int)(jari2 * Math.Sin(alpha * i /*+ Math.PI / n*/));
 
-                xAkhir = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 2) /*+ Math.PI / n*/));
-                yAkhir = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 2) /*+ Math.PI / n*/));
+                tend.X = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 2) /*+ Math.PI / n*/));
+                tend.Y = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 2) /*+ Math.PI / n*/));
 
-                pAwal.X = xAwal;
-                pAwal.Y = yAwal;
-                pAkhir.X = xAkhir;
-                pAkhir.Y = yAkhir;
+                /*pAwal.X = tstart.X;
+                pAwal.Y = tstart.Y;
+                pAkhir.X = tend.X;
+                pAkhir.Y = tend.Y;*/
 
-                g.DrawLine(color, pAwal, pAkhir);
+                g.DrawLine(color, tstart, tend);
                 i = i + 1;
             }
         }
 
         private void BuatNGon()
         {
-            int xAwal = Convert.ToInt32(txtXA.Text);
-            int yAwal = Convert.ToInt32(txtYA.Text);
-            int xAkhir = Convert.ToInt32(txtXB.Text);
-            int yAkhir = Convert.ToInt32(txtYB.Text);
-
-            int jari2 = (int)Math.Sqrt(Math.Pow(xAkhir - xAwal, 2) + Math.Pow(yAkhir - yAwal, 2));
-            SetTextJari2(Convert.ToString(jari2));
+            int jari2 = (int)Math.Sqrt(Math.Pow(tend.X - tstart.X, 2) + Math.Pow(tend.Y - tstart.Y, 2));
 
             int i = 1, n = Convert.ToInt32(txtN.Text);
-            x = Convert.ToDouble(txtXA.Text);
-            y = Convert.ToDouble(txtYA.Text);
+            x = Convert.ToDouble(tstart.X);
+            y = Convert.ToDouble(tstart.Y);
             double alpha = (2 * Math.PI / n);
 
             Pen color = new Pen(Color.Gold);
-            Point pAwal = new Point();
-            Point pAkhir = new Point();
+            /*Point pAwal = new Point();
+            Point pAkhir = new Point();*/
 
             while (i <= n)
             {
-                xAwal = (int)x + (int)(jari2 * Math.Cos(alpha * i + Math.PI / n));
-                yAwal = (int)y + (int)(jari2 * Math.Sin(alpha * i + Math.PI / n));
+                tstart.X = (int)x + (int)(jari2 * Math.Cos(alpha * i + Math.PI / n));
+                tstart.Y = (int)y + (int)(jari2 * Math.Sin(alpha * i + Math.PI / n));
 
-                xAkhir = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 1) + Math.PI / n));
-                yAkhir = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 1) + Math.PI / n));
+                tend.X = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 1) + Math.PI / n));
+                tend.Y = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 1) + Math.PI / n));
 
-                pAwal.X = xAwal;
-                pAwal.Y = yAwal;
-                pAkhir.X = xAkhir;
-                pAkhir.Y = yAkhir;
+                /*pAwal.X = tstart.X;
+                pAwal.Y = tstart.Y;
+                pAkhir.X = tend.X;
+                pAkhir.Y = tend.Y;*/
 
-                g.DrawLine(color, pAwal, pAkhir);
+                g.DrawLine(color, tstart, tend);
                 i = i + 1;
             }
         }
-
+        /*===============================================*/
+        /*===============================================*/
         private void Form1_Load(object sender, EventArgs e)
         {
            
@@ -524,8 +361,12 @@ namespace Mini_Paint
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            txtXA.Text = Convert.ToString(e.X);
-            txtYA.Text = Convert.ToString(e.Y);
+            tpusat.X = pictureBox1.Width / 2;
+            tpusat.Y = pictureBox1.Height / 2;
+            txtXA.Text = Convert.ToString(e.X - tpusat.X);
+            txtYA.Text = Convert.ToString(tpusat.Y - e.Y);
+            tstart.X = e.X;
+            tstart.Y = e.Y;
             mousedown = true;
         }
 
@@ -533,8 +374,10 @@ namespace Mini_Paint
         {
             if (mousedown == true)
             {
-                txtXB.Text = Convert.ToString(e.X);
-                txtYB.Text = Convert.ToString(e.Y);
+                txtXB.Text = Convert.ToString(e.X - tpusat.X);
+                txtYB.Text = Convert.ToString(tpusat.Y - e.Y);
+                tend.X = e.X;
+                tend.Y = e.Y;
                 g.Clear(Color.White);
                 if (rbtnDDA.Checked == true)
                 {
@@ -566,36 +409,99 @@ namespace Mini_Paint
                 }
             }
         }
+        /*===============================================*/
 
+        /*================= Transformation ==============*/
+
+
+        private void btnTranslate_Click(object sender, EventArgs e)
+        {
+            /*Matrix Translate = new Matrix(1, 0, 0, 1, float.Parse(txtDeltaX.Text), float.Parse(txtDeltaY.Text));
+            Point tstart = new Point(Convert.ToInt32(txtXA.Text),Convert.ToInt32(txtYA.Text));
+            Point tend = new Point(Convert.ToInt32(txtXB.Text),Convert.ToInt32(txtYB.Text));
+            Point[] points = {tstart,tend};
+            Translate.TransformVectors(points);
+            tstart = points[0];
+            tend = points[1];*/
+            Point[] points = { new Point(tstart.X - tpusat.X,tpusat.Y - tstart.Y),
+                               new Point(tend.X - tpusat.X,tpusat.Y - tend.Y) };
+
+            Point A = new Point(points[0].X + Convert.ToInt32(txtDeltaX.Text), points[0].Y + Convert.ToInt32(txtDeltaY.Text));
+            Point B = new Point(points[1].X + Convert.ToInt32(txtDeltaX.Text), points[1].Y + Convert.ToInt32(txtDeltaY.Text));
+            //MessageBox.Show(Convert.ToString(A), Convert.ToString(B));
+            txtXA.Text = Convert.ToString(A.X);
+            txtYA.Text = Convert.ToString(A.Y);
+            txtXB.Text = Convert.ToString(B.X);
+            txtYB.Text = Convert.ToString(B.Y);
+            tstart = new Point(A.X + tpusat.X, tpusat.Y - A.Y);
+            tend = new Point(B.X + tpusat.X, tpusat.Y - B.Y);
+            DrawNew();
+        }
+
+        private void btnScale_Click(object sender, EventArgs e)
+        {
+            Matrix Scale = new Matrix(float.Parse(txtScale.Text), 0, 0, float.Parse(txtScale.Text), 0, 0);
+            DoTransformation(Scale);
+            //MessageBox.Show(Convert.ToString(tstart), Convert.ToString(tend));
+        }
+
+        private void btnRotate_Click(object sender, EventArgs e)
+        {
+            Matrix Rotate = new Matrix((float)Math.Cos(float.Parse(txtRotate.Text) / 360 * 2 * Math.PI),
+                                        (float)Math.Sin(float.Parse(txtRotate.Text) / 360 * 2 * Math.PI),
+                                       -(float)Math.Sin(float.Parse(txtRotate.Text) / 360 * 2 * Math.PI),
+                                        (float)Math.Cos(float.Parse(txtRotate.Text) / 360 * 2 * Math.PI),
+                                        0, 0);
+            DoTransformation(Rotate);
+        }
+
+        private void btnReflectX_Click(object sender, EventArgs e)
+        {
+            Matrix Reflexsi = new Matrix(1, 0, 0, -1, 0, 0);
+            DoTransformation(Reflexsi);
+        }
+
+
+        private void btnReflectY_Click(object sender, EventArgs e)
+        {
+            Matrix Reflexsi = new Matrix(-1, 0, 0, 1, 0, 0);
+            DoTransformation(Reflexsi);
+        }
+
+        private void btnReflectYX_Click(object sender, EventArgs e)
+        {
+            Matrix Reflexsi = new Matrix(0, 1, 1, 0, 0, 0);
+            DoTransformation(Reflexsi);
+        }
+
+        private void btnReflectYminX_Click(object sender, EventArgs e)
+        {
+            Matrix Reflexsi = new Matrix(0, -1, -1, 0, 0, 0);
+            DoTransformation(Reflexsi);
+        }
+
+
+        /*===============================================*/
         private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnColor_Click(object sender, EventArgs e)
+        {
+            if(colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                btnColor.BackColor = colorDialog.Color;
+            }
+        }
+
+        private void label7_Click(object sender, EventArgs e)
         {
 
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-            /*txtXB.Text = Convert.ToString(e.X);
-            txtYB.Text = Convert.ToString(e.Y);
-            if (rbtnDDA.Checked == true)
-            {
-                DDA();
-            }
-            else if (rbtnNaive.Checked == true)
-            {
-                Naive();
-            }
-            else if (rbtnBresenham.Checked == true)
-            {
-                Bresenham();
-            }
-            else if (rbtnLingkaran.Checked == true)
-            {
-                BuatLingkaran();
-            }
-            else if (rbtnElips.Checked == true)
-            {
-                BuatElips();
-            }*/
             mousedown = false;
         }
 
