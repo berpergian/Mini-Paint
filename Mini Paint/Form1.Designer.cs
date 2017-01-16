@@ -67,6 +67,12 @@
             this.txtDeltaX = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
+            this.btnWarnai = new System.Windows.Forms.Button();
+            this.btnShearing = new System.Windows.Forms.Button();
+            this.txtShY = new System.Windows.Forms.TextBox();
+            this.txtShX = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -74,12 +80,13 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.pictureBox1.Location = new System.Drawing.Point(12, 12);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(591, 258);
+            this.pictureBox1.Size = new System.Drawing.Size(725, 258);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox1_Paint);
             this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             this.pictureBox1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseMove);
             this.pictureBox1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseUp);
@@ -186,9 +193,9 @@
             this.groupBox1.Controls.Add(this.rbtnBintang);
             this.groupBox1.Controls.Add(this.rbtnElips);
             this.groupBox1.Controls.Add(this.rbtnLingkaran);
-            this.groupBox1.Location = new System.Drawing.Point(609, 12);
+            this.groupBox1.Location = new System.Drawing.Point(743, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(145, 184);
+            this.groupBox1.Size = new System.Drawing.Size(111, 184);
             this.groupBox1.TabIndex = 29;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Bentuk";
@@ -261,15 +268,15 @@
             // 
             // txtN
             // 
-            this.txtN.Location = new System.Drawing.Point(692, 251);
+            this.txtN.Location = new System.Drawing.Point(810, 216);
             this.txtN.Name = "txtN";
-            this.txtN.Size = new System.Drawing.Size(61, 19);
+            this.txtN.Size = new System.Drawing.Size(34, 19);
             this.txtN.TabIndex = 30;
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(694, 228);
+            this.label13.Location = new System.Drawing.Point(800, 199);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(54, 12);
             this.label13.TabIndex = 31;
@@ -278,9 +285,9 @@
             // btnColor
             // 
             this.btnColor.BackColor = System.Drawing.Color.Black;
-            this.btnColor.Location = new System.Drawing.Point(620, 249);
+            this.btnColor.Location = new System.Drawing.Point(760, 214);
             this.btnColor.Name = "btnColor";
-            this.btnColor.Size = new System.Drawing.Size(61, 23);
+            this.btnColor.Size = new System.Drawing.Size(23, 23);
             this.btnColor.TabIndex = 32;
             this.btnColor.UseVisualStyleBackColor = false;
             this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
@@ -288,7 +295,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(631, 228);
+            this.label7.Location = new System.Drawing.Point(753, 199);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(36, 12);
             this.label7.TabIndex = 33;
@@ -297,6 +304,11 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.txtShY);
+            this.groupBox3.Controls.Add(this.txtShX);
+            this.groupBox3.Controls.Add(this.label11);
+            this.groupBox3.Controls.Add(this.label12);
+            this.groupBox3.Controls.Add(this.btnShearing);
             this.groupBox3.Controls.Add(this.btnReflectYminX);
             this.groupBox3.Controls.Add(this.btnReflectYX);
             this.groupBox3.Controls.Add(this.btnReflectY);
@@ -313,14 +325,14 @@
             this.groupBox3.Controls.Add(this.label9);
             this.groupBox3.Location = new System.Drawing.Point(247, 289);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(507, 82);
+            this.groupBox3.Size = new System.Drawing.Size(607, 82);
             this.groupBox3.TabIndex = 32;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Transformation";
             // 
             // btnReflectYminX
             // 
-            this.btnReflectYminX.Location = new System.Drawing.Point(411, 53);
+            this.btnReflectYminX.Location = new System.Drawing.Point(521, 54);
             this.btnReflectYminX.Name = "btnReflectYminX";
             this.btnReflectYminX.Size = new System.Drawing.Size(80, 23);
             this.btnReflectYminX.TabIndex = 47;
@@ -330,7 +342,7 @@
             // 
             // btnReflectYX
             // 
-            this.btnReflectYX.Location = new System.Drawing.Point(330, 53);
+            this.btnReflectYX.Location = new System.Drawing.Point(440, 54);
             this.btnReflectYX.Name = "btnReflectYX";
             this.btnReflectYX.Size = new System.Drawing.Size(75, 23);
             this.btnReflectYX.TabIndex = 46;
@@ -340,7 +352,7 @@
             // 
             // btnReflectY
             // 
-            this.btnReflectY.Location = new System.Drawing.Point(411, 18);
+            this.btnReflectY.Location = new System.Drawing.Point(521, 18);
             this.btnReflectY.Name = "btnReflectY";
             this.btnReflectY.Size = new System.Drawing.Size(80, 23);
             this.btnReflectY.TabIndex = 45;
@@ -350,14 +362,14 @@
             // 
             // txtRotate
             // 
-            this.txtRotate.Location = new System.Drawing.Point(269, 57);
+            this.txtRotate.Location = new System.Drawing.Point(266, 57);
             this.txtRotate.Name = "txtRotate";
             this.txtRotate.Size = new System.Drawing.Size(33, 19);
             this.txtRotate.TabIndex = 44;
             // 
             // btnReflectX
             // 
-            this.btnReflectX.Location = new System.Drawing.Point(330, 18);
+            this.btnReflectX.Location = new System.Drawing.Point(440, 18);
             this.btnReflectX.Name = "btnReflectX";
             this.btnReflectX.Size = new System.Drawing.Size(75, 23);
             this.btnReflectX.TabIndex = 43;
@@ -443,11 +455,65 @@
             this.label9.TabIndex = 34;
             this.label9.Text = "ΔX";
             // 
+            // btnWarnai
+            // 
+            this.btnWarnai.Location = new System.Drawing.Point(769, 247);
+            this.btnWarnai.Name = "btnWarnai";
+            this.btnWarnai.Size = new System.Drawing.Size(75, 23);
+            this.btnWarnai.TabIndex = 34;
+            this.btnWarnai.Text = "Warnai";
+            this.btnWarnai.UseVisualStyleBackColor = true;
+            this.btnWarnai.Click += new System.EventHandler(this.btnWarnai_Click);
+            // 
+            // btnShearing
+            // 
+            this.btnShearing.Location = new System.Drawing.Point(347, 18);
+            this.btnShearing.Name = "btnShearing";
+            this.btnShearing.Size = new System.Drawing.Size(75, 23);
+            this.btnShearing.TabIndex = 48;
+            this.btnShearing.Text = "Shearing";
+            this.btnShearing.UseVisualStyleBackColor = true;
+            this.btnShearing.Click += new System.EventHandler(this.btnShearing_Click);
+            // 
+            // txtShY
+            // 
+            this.txtShY.Location = new System.Drawing.Point(401, 57);
+            this.txtShY.Name = "txtShY";
+            this.txtShY.Size = new System.Drawing.Size(33, 19);
+            this.txtShY.TabIndex = 52;
+            // 
+            // txtShX
+            // 
+            this.txtShX.Location = new System.Drawing.Point(341, 57);
+            this.txtShX.Name = "txtShX";
+            this.txtShX.Size = new System.Drawing.Size(33, 19);
+            this.txtShX.TabIndex = 51;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(375, 60);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(25, 12);
+            this.label11.TabIndex = 50;
+            this.label11.Text = "ShY";
+            this.label11.Click += new System.EventHandler(this.label11_Click);
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(314, 60);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(25, 12);
+            this.label12.TabIndex = 49;
+            this.label12.Text = "ShX";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(766, 383);
+            this.ClientSize = new System.Drawing.Size(866, 383);
+            this.Controls.Add(this.btnWarnai);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.btnColor);
@@ -519,6 +585,12 @@
         private System.Windows.Forms.Button btnReflectYminX;
         private System.Windows.Forms.Button btnReflectYX;
         private System.Windows.Forms.Button btnReflectY;
+        private System.Windows.Forms.Button btnWarnai;
+        private System.Windows.Forms.TextBox txtShY;
+        private System.Windows.Forms.TextBox txtShX;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.Button btnShearing;
     }
 }
 

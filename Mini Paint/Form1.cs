@@ -20,14 +20,15 @@ namespace Mini_Paint
         double x,y;
         Point tstart, tend, tpusat,InputStart,InputEnd;
         Graphics g;
+        Bitmap bmp = new Bitmap(725, 258);
         Color warna;
         bool mousedown = false;
 
         public Form1()
         {
             InitializeComponent();
-            g = pictureBox1.CreateGraphics();
-            DrawTPusat();
+            //g = pictureBox1.CreateGraphics();
+            g = Graphics.FromImage(bmp);
         }
 
         /* ==============================*/
@@ -43,7 +44,7 @@ namespace Mini_Paint
             g.Clear(Color.White);
             if (rbtnDDA.Checked == true)
             {
-                DDA();
+                DDA(tstart,tend);
             }
             else if (rbtnNaive.Checked == true)
             {
@@ -77,13 +78,13 @@ namespace Mini_Paint
             InputStart.Y = 0;
             InputEnd.X = tpusat.X;
             InputEnd.Y = tpusat.Y * 2;
-            Bresenham();
+            DDA(InputStart,InputEnd);
 
             InputStart.X = 0;
             InputStart.Y = tpusat.Y;
             InputEnd.X = tpusat.X * 2;
             InputEnd.Y = tpusat.Y;
-            Bresenham();
+            DDA(InputStart, InputEnd);
         }
 
         private void DoTransformation(Matrix M)
@@ -97,13 +98,13 @@ namespace Mini_Paint
         }
         /* ==============================*/
         /*==================== Shape =====================*/
-        private void DDA()
+        private void DDA(Point A, Point B)
         {
-            dx = tend.X - tstart.X;
-            dy = tend.Y - tstart.Y;
-            x = Convert.ToDouble(tstart.X);
-            y = Convert.ToDouble(tstart.Y);
-            warna = Color.Red;
+            dx = B.X - A.X;
+            dy = B.Y - A.Y;
+            x = Convert.ToDouble(A.X);
+            y = Convert.ToDouble(A.Y);
+            warna = Color.Black;
 
             int steps = Math.Max(Math.Abs(dx), Math.Abs(dy));
 
@@ -138,7 +139,7 @@ namespace Mini_Paint
                 for (x = xMulai; x <= xSelesai; x++)
                 {
                     y = (gradien * x + c);
-                    PutPixel((int)x, (int)y, Color.Black);
+                    PutPixel((int)x, (int)y, Color.Red);
                 }
             }
             else
@@ -157,7 +158,7 @@ namespace Mini_Paint
                         x = ((y - c) / gradien);
                     }
 
-                    PutPixel((int)x, (int)y, Color.Black);
+                    PutPixel((int)x, (int)y, Color.Red);
                 }
             }
         }
@@ -293,11 +294,13 @@ namespace Mini_Paint
 
         private void BuatBintang()
         {
-            int jari2 = (int)Math.Sqrt(Math.Pow(tend.X - tstart.X, 2) + Math.Pow(tend.Y - tstart.Y, 2));
+            Point A = tstart;
+            Point B = tend;
+            int jari2 = (int)Math.Sqrt(Math.Pow(B.X - A.X, 2) + Math.Pow(B.Y - A.Y, 2));
 
             int i = 1, n = 5;
-            x = Convert.ToDouble(tstart.X);
-            y = Convert.ToDouble(tstart.Y);
+            x = Convert.ToDouble(A.X);
+            y = Convert.ToDouble(A.Y);
             double alpha = (2 * Math.PI / n);
 
             Pen color = new Pen(Color.Brown);
@@ -306,29 +309,31 @@ namespace Mini_Paint
             
             while (i<=n)
             {
-                tstart.X = (int)x + (int)(jari2 * Math.Cos(alpha * i /*+ Math.PI / n*/));
-                tstart.Y = (int)y + (int)(jari2 * Math.Sin(alpha * i /*+ Math.PI / n*/));
+                A.X = (int)x + (int)(jari2 * Math.Cos(alpha * i /*+ Math.PI / n*/));
+                A.Y = (int)y + (int)(jari2 * Math.Sin(alpha * i /*+ Math.PI / n*/));
 
-                tend.X = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 2) /*+ Math.PI / n*/));
-                tend.Y = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 2) /*+ Math.PI / n*/));
+                B.X = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 2) /*+ Math.PI / n*/));
+                B.Y = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 2) /*+ Math.PI / n*/));
 
                 /*pAwal.X = tstart.X;
                 pAwal.Y = tstart.Y;
                 pAkhir.X = tend.X;
                 pAkhir.Y = tend.Y;*/
 
-                g.DrawLine(color, tstart, tend);
+                g.DrawLine(color, A, B);
                 i = i + 1;
             }
         }
 
         private void BuatNGon()
         {
-            int jari2 = (int)Math.Sqrt(Math.Pow(tend.X - tstart.X, 2) + Math.Pow(tend.Y - tstart.Y, 2));
+            Point A = tstart;
+            Point B = tend;
+            int jari2 = (int)Math.Sqrt(Math.Pow(B.X - A.X, 2) + Math.Pow(B.Y - A.Y, 2));
 
             int i = 1, n = Convert.ToInt32(txtN.Text);
-            x = Convert.ToDouble(tstart.X);
-            y = Convert.ToDouble(tstart.Y);
+            x = Convert.ToDouble(A.X);
+            y = Convert.ToDouble(A.Y);
             double alpha = (2 * Math.PI / n);
 
             Pen color = new Pen(Color.Gold);
@@ -337,18 +342,18 @@ namespace Mini_Paint
 
             while (i <= n)
             {
-                tstart.X = (int)x + (int)(jari2 * Math.Cos(alpha * i + Math.PI / n));
-                tstart.Y = (int)y + (int)(jari2 * Math.Sin(alpha * i + Math.PI / n));
+                A.X = (int)x + (int)(jari2 * Math.Cos(alpha * i + Math.PI / n));
+                A.Y = (int)y + (int)(jari2 * Math.Sin(alpha * i + Math.PI / n));
 
-                tend.X = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 1) + Math.PI / n));
-                tend.Y = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 1) + Math.PI / n));
+                B.X = (int)x + (int)(jari2 * Math.Cos(alpha * (i + 1) + Math.PI / n));
+                B.Y = (int)y + (int)(jari2 * Math.Sin(alpha * (i + 1) + Math.PI / n));
 
                 /*pAwal.X = tstart.X;
                 pAwal.Y = tstart.Y;
                 pAkhir.X = tend.X;
                 pAkhir.Y = tend.Y;*/
 
-                g.DrawLine(color, tstart, tend);
+                g.DrawLine(color, A, B);
                 i = i + 1;
             }
         }
@@ -378,10 +383,11 @@ namespace Mini_Paint
                 txtYB.Text = Convert.ToString(tpusat.Y - e.Y);
                 tend.X = e.X;
                 tend.Y = e.Y;
-                g.Clear(Color.White);
+                //g.Clear(Color.White);
+                Refresh();
                 if (rbtnDDA.Checked == true)
                 {
-                    DDA();
+                    DDA(tstart,tend);
                 }
                 else if (rbtnNaive.Checked == true)
                 {
@@ -416,18 +422,13 @@ namespace Mini_Paint
 
         private void btnTranslate_Click(object sender, EventArgs e)
         {
-            /*Matrix Translate = new Matrix(1, 0, 0, 1, float.Parse(txtDeltaX.Text), float.Parse(txtDeltaY.Text));
-            Point tstart = new Point(Convert.ToInt32(txtXA.Text),Convert.ToInt32(txtYA.Text));
-            Point tend = new Point(Convert.ToInt32(txtXB.Text),Convert.ToInt32(txtYB.Text));
-            Point[] points = {tstart,tend};
-            Translate.TransformVectors(points);
-            tstart = points[0];
-            tend = points[1];*/
             Point[] points = { new Point(tstart.X - tpusat.X,tpusat.Y - tstart.Y),
                                new Point(tend.X - tpusat.X,tpusat.Y - tend.Y) };
 
-            Point A = new Point(points[0].X + Convert.ToInt32(txtDeltaX.Text), points[0].Y + Convert.ToInt32(txtDeltaY.Text));
-            Point B = new Point(points[1].X + Convert.ToInt32(txtDeltaX.Text), points[1].Y + Convert.ToInt32(txtDeltaY.Text));
+            Point A = new Point(points[0].X + Convert.ToInt32(txtDeltaX.Text), 
+                                points[0].Y + Convert.ToInt32(txtDeltaY.Text));
+            Point B = new Point(points[1].X + Convert.ToInt32(txtDeltaX.Text),
+                                points[1].Y + Convert.ToInt32(txtDeltaY.Text));
             //MessageBox.Show(Convert.ToString(A), Convert.ToString(B));
             txtXA.Text = Convert.ToString(A.X);
             txtYA.Text = Convert.ToString(A.Y);
@@ -461,7 +462,6 @@ namespace Mini_Paint
             DoTransformation(Reflexsi);
         }
 
-
         private void btnReflectY_Click(object sender, EventArgs e)
         {
             Matrix Reflexsi = new Matrix(-1, 0, 0, 1, 0, 0);
@@ -480,6 +480,62 @@ namespace Mini_Paint
             DoTransformation(Reflexsi);
         }
 
+        private void btnShearing_Click(object sender, EventArgs e)
+        {
+            Point[] points = { new Point(tstart.X - tpusat.X,tpusat.Y - tstart.Y),
+                               new Point(tend.X - tpusat.X,tpusat.Y - tend.Y) };
+            Point A = new Point(points[0].X + (Convert.ToInt32(txtShX.Text)*points[0].Y), 
+                                (Convert.ToInt32(txtShY.Text)*points[0].X)+points[0].Y);
+            Point B = new Point(points[1].X + (Convert.ToInt32(txtShX.Text) * points[1].Y),
+                                (Convert.ToInt32(txtShY.Text) * points[1].X) + points[1].Y);
+
+            txtXA.Text = Convert.ToString(A.X);
+            txtYA.Text = Convert.ToString(A.Y);
+            txtXB.Text = Convert.ToString(B.X);
+            txtYB.Text = Convert.ToString(B.Y);
+            tstart = new Point(A.X + tpusat.X, tpusat.Y - A.Y);
+            tend = new Point(B.X + tpusat.X, tpusat.Y - B.Y);
+            DrawNew();
+        }
+
+        /*===============================================*/
+        /*=================== Mewarnai ==================*/
+
+        private void BoundaryFill()
+        {
+
+        }
+
+        private void FloodFill(int x, int y, Color oldcolor, Color newcolor)
+        {
+            //Bitmap image = new Bitmap(pictureBox1.Image);
+
+            /*if (image.GetPixel(x, y) == oldcolor)
+            {
+                image.SetPixel(x, y, newcolor);
+                FloodFill(x + 1, y, oldcolor, newcolor);
+                FloodFill(x, y + 1, oldcolor, newcolor);
+                FloodFill(x - 1, y, oldcolor, newcolor);
+                FloodFill(x, y - 1, oldcolor, newcolor);
+            }
+            pictureBox1.Image = image;*/
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            //DrawTPusat();
+        }
+
+        private void btnWarnai_Click(object sender, EventArgs e)
+        {
+            Bitmap bmp = new Bitmap(pictureBox1.ClientSize.Width, pictureBox1.Height);
+            //FloodFill(tstart.X, tstart.Y,Color.White,fill);
+        }
 
         /*===============================================*/
         private void groupBox2_Enter(object sender, EventArgs e)
